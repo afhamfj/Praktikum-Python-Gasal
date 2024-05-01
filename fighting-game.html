@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fighting Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #f5f5f5;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+ 
+    <script>
+        // Game Logic
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+ 
+        // Player 1
+        const player1 = {
+            x: 50,
+            y: canvas.height / 2 - 50,
+            width: 50,
+            height: 100,
+            color: 'blue',
+            dy: 0,
+            speed: 5,
+            score: 0
+        };
+ 
+        // Player 2
+        const player2 = {
+            x: canvas.width - 100,
+            y: canvas.height / 2 - 50,
+            width: 50,
+            height: 100,
+            color: 'red',
+            dy: 0,
+            speed: 5,
+            score: 0
+        };
+ 
+        // Ball
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 10,
+            speed: 4,
+            dx: 4,
+            dy: 4,
+            color: 'black'
+        };
+ 
+        // Draw Players
+        function drawPlayers() {
+            // Player 1
+            ctx.fillStyle = player1.color;
+            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+ 
+            // Player 2
+            ctx.fillStyle = player2.color;
+            ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+        }
+ 
+        // Draw Ball
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, false);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+ 
+        // Update Canvas
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+ 
+            drawPlayers();
+            drawBall();
+ 
+            // Move Players
+            player1.y += player1.dy;
+            player2.y += player2.dy;
+ 
+            // Ball Movement
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+ 
+            // Ball Collision with Players
+            if (
+                ball.y + ball.radius > player1.y &&
+                ball.y - ball.radius < player1.y + player1.height &&
+                ball.dx < 0
+            ) {
+                if (ball.x - ball.radius < player1.x + player1.width) {
+                    ball.dx *= -1;
+                    player1.score++;
+                }
+            }
+ 
+            if (
+                ball.y + ball.radius > player2.y &&
+                ball.y - ball.radius < player2.y + player2.height &&
+                ball.dx > 0
+            ) {
+                if (ball.x + ball.radius > player2.x) {
+                    ball.dx *= -1;
+                    player2.score++;
+                }
+            }
+ 
+            // Ball Collision with Walls
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.dy *= -1;
+            }
+ 
+            // Player Movement
+            document.addEventListener('keydown', function(event) {
+                switch (event.keyCode) {
+                    case 87: // W key
+                        player1.dy = -player1.speed;
+                        break;
+                    case 83: // S key
+                        player1.dy = player1.speed;
+                        break;
+                    case 38: // Up arrow key
+                        player2.dy = -player2.speed;
+                        break;
+                    case 40: // Down arrow key
+                        player2.dy = player2.speed;
+                        break;
+                }
+            });
+ 
+            document.addEventListener('keyup', function(event) {
+                switch (event.keyCode) {
+                    case 87: // W key
+                    case 83: // S key
+                        player1.dy = 0;
+                        break;
+                    case 38: // Up arrow key
+                    case 40: // Down arrow key
+                        player2.dy = 0;
+                        break;
+                }
+            });
+ 
+            // Update Scores
+            document.getElementById('player1Score').textContent = player1.score;
+            document.getElementById('player2Score').textContent = player2.score;
+ 
+            requestAnimationFrame(update);
+        }
+ 
+        update();
+    </script>
+</body>
+</html>
